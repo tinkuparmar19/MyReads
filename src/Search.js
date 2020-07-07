@@ -1,8 +1,37 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import * as BooksAPI from './BooksAPI'
+import Book from './Book'
+import PropTypes from 'prop-types'
 
 class Search extends React.Component {
+    static propTypes = {
+      books: PropTypes.array.isRequired,
+      changeShelf: PropTypes.func.isRequired
+    }
+    state = {
+      query: '',
+      Books: [],
+      err: false
+    }
+    updataQuery = (query) => {
+      this.setState({ query })
+      if (query) {
+        BooksAPI.search(query.trim(), 20)
+        .then(books => {
+          if(books.length > 0) {
+            this.setState({ Books: books, err: false })
+          } else {
+            this.setState({ Books: [], err: true})
+          }
+        }) 
+        } else {
+          this.setState({ Books: [], err: false })
+      }
+    } 
     render() {
+        const { Books, query, err } = this.state
+        const { changeShelf, books } = this.props
         return (
             <div className="search-books">
             <div className="search-books-bar">
@@ -12,20 +41,31 @@ class Search extends React.Component {
               > close
               </Link>
               <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-                <input type="text" placeholder="Search by title or author"/>
-
+                <input type="text" 
+                       placeholder="Search by title or author"
+                       value={query}
+                       onChange={(e) => this.updataQuery(e.target.value)}/>
               </div>
             </div>
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+              { Books.length > 0 && (
+                <div>
+                <p>{Books.length} items</p>
+                <ol className="books-grid">
+                  {Books.map(book => (
+                    <Book 
+                      book={book}
+                      key={book.id}
+                      changeShelf={changeShelf}
+                      books={books}
+                    />
+                  ))}
+                </ol>
+                </div>
+              )}
+              { err && (
+                <p>try again</p>
+              )}
             </div>
           </div>
         )

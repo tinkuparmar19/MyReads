@@ -19,12 +19,24 @@ class BooksApp extends React.Component {
     })
   }
 
+  changeShelf = (changebook, shelf) => {
+    BooksAPI.update(changebook, shelf)
+    .then(res => {
+      changebook.shelf = shelf
+      this.setState((currentState => ({
+        books: currentState.books.filter(book => book.id !== changebook.id).concat(changebook)
+      })))
+    })
+  }
+
   render() {
     const { books } = this.state
     return (
       <div className="app">
         <Route 
-        path='/search' component={ Search }
+        path='/search' render={() => (
+          <Search changeShelf={this.changeShelf} books={books}/>
+        )}
         />
         <Route 
           exact path='/' render={() => (
@@ -32,7 +44,10 @@ class BooksApp extends React.Component {
           <div className="list-books-title">
             <h1>MyReads</h1>
           </div>
-            <BookList books={books}/>
+            <BookList 
+              books={books}
+              changeShelf={this.changeShelf}  
+            />
           <div className="open-search">
             <Link 
               to='/search'
