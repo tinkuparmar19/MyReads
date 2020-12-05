@@ -49,10 +49,10 @@ class BooksApp extends React.Component {
               changeShelf={this.changeShelf}  
             />
           <div className="open-search">
-            <Link 
-              to='/search'
-            > Add a book
-            </ Link>
+              <Link 
+                to='/search'
+              > Add a book
+              </ Link>
           </div>
           </div>
         )}
